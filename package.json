@@ -8,6 +8,10 @@
   },
   "author": "Sibevin Wang",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sibevin/svs-blog-post-creator.git"
+  },
   "bin": {
     "post-creator": "./index.js"
   },
