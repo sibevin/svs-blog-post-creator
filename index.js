@@ -3,6 +3,8 @@
 const pkg = require('./package.json')
 const commander = require('commander')
 const sprintf = require('sprintf-js').sprintf
+const fs = require('fs');
+const path = require('path');
 
 const LogLevel = Object.freeze({
   'EE': 0,
@@ -66,6 +68,34 @@ const logPrint = function(level, currentVerbose, msg) {
   }
 }
 
+const fetchDefault = function(givenValue, defaultValue) {
+  if (givenValue === undefined) {
+    return defaultValue
+  } else {
+    return givenValue
+  }
+}
+
+const findOrBuildOutputFolder = function(outputPath) {
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath)
+  }
+}
+
+const fetchSlug = function(givenSlug, title) {
+  if (givenSlug === undefined) {
+    // TODO: convert title to slgu
+  } else {
+    return givenSlug
+  }
+}
+
+const createPostFile = function(postData) {
+  var time = postData['dt'].replace(/[- :]/g, '')
+  var fileName = postData['dt'].replace(/[- :]/g, '') + '-' + postData['slug']
+  // TODO: create post file
+}
+
 commander
   .version(pkg.version)
   .usage('[options] <title>')
@@ -93,6 +123,8 @@ var verbose = commander.verbose
 var title = commander.args.join(' ')
 var template = fetchTemplate(commander.template)
 var dt = fetchDt(commander.datetime)
+var outputPath = fetchDefault(commander.path, DEFAULT_PATH)
+var slug = fetchSlug(commander.slug, title)
 
 logPrint(LogLevel.DD, verbose, {
   'args': commander.args,
@@ -103,6 +135,20 @@ logPrint(LogLevel.DD, verbose, {
   'datetime': dt,
   'template': template,
   'webpage': commander.webpage,
-  'path': commander.path,
+  'path': outputPath,
   'verbose': verbose
 })
+
+var postData = {
+  title: commander.args.join(' '),
+  tags: commander.tags,
+  category: commander.category,
+  slug: slug,
+  datetime: dt,
+  template: template,
+  webpage: commander.webpage,
+  path: outputPath,
+}
+
+findOrBuildOutputFolder(outputPath)
+createPostFile(postData)
