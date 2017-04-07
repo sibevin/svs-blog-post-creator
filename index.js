@@ -3,8 +3,10 @@
 const pkg = require('./package.json')
 const commander = require('commander')
 const sprintf = require('sprintf-js').sprintf
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
+const stringToSlug = require('speakingurl')
+const mkdirp = require('mkdirp')
 
 const LogLevel = Object.freeze({
   'EE': 0,
@@ -78,21 +80,23 @@ const fetchDefault = function(givenValue, defaultValue) {
 
 const findOrBuildOutputFolder = function(outputPath) {
   if (!fs.existsSync(outputPath)) {
-    fs.mkdirSync(outputPath)
+    var result = mkdirp.sync(outputPath)
+    console.log('mkdirp', result)
   }
 }
 
 const fetchSlug = function(givenSlug, title) {
   if (givenSlug === undefined) {
     // TODO: convert title to slgu
+    return stringToSlug(title)
   } else {
     return givenSlug
   }
 }
 
 const createPostFile = function(postData) {
-  var time = postData['dt'].replace(/[- :]/g, '')
-  var fileName = postData['dt'].replace(/[- :]/g, '') + '-' + postData['slug']
+  var fileName = postData['datetime'].replace(/[- :]/g, '') + '-' + postData['slug']
+  console.log('fileName', fileName)
   // TODO: create post file
 }
 
