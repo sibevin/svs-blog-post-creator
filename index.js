@@ -164,7 +164,7 @@ const createPostFile = function(postData) {
       template.push(`h1\n  | Why`)
       break
     case 'slides':
-      template.push("\nheader.caption")
+      template.push("\nheader.caption\n  h2\n    |")
       template.push("section.slide.no-page-number\n  h2\n    |")
       template.push("section.slide\n  h2\n    |")
       template.push("section.slide\n  h2 Q & A")
