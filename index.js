@@ -17,7 +17,7 @@ const LogLevel = Object.freeze({
 const DEFAULT_LOG_LEVEL = LogLevel.FF
 const CATEGORIES = ['coding', 'life', 'tools', 'bm', 'slides']
 const DEFAULT_CATEGORY = 'coding'
-const TEMPLATES = ['post', 'gem', 'link', 'bm', 'slides']
+const TEMPLATES = ['post', 'gem', 'link', 'bm', 'slides', 'frag']
 const DEFAULT_TEMPLATE = 'post'
 const DEFAULT_PATH = './src/posts'
 const DEFAULT_BM_PATH = './src/bookmarks'
@@ -85,7 +85,7 @@ const fetchOutputPath = (givenValue, template) => {
       case 'slides':
         return DEFAULT_SLIDE_PATH
       default:
-        // post, link, gem
+        // post, link, gem, frag
         return DEFAULT_PATH
     }
   } else {
@@ -157,11 +157,21 @@ const createPostFile = function(postData) {
       template.push(`h1\n  | How`)
       break
     case 'link':
-      template = genTemplateLink(postData)
       template.push("\nul")
       template.push(`  li\n    a href="" target="_blank"\n      | Homepage`)
       template.push(`h1\n  | What`)
       template.push(`h1\n  | Why`)
+      break
+    case 'frag':
+      template.push(`h1\n  | Who`)
+      template.push("ul")
+      template.push(`  li\n    a href="" target="_blank"\n      | `)
+      template.push(`h1\n  | Terms`)
+      template.push("ul")
+      template.push(`  li\n    a href="" target="_blank"\n      | `)
+      template.push(`h1\n  | Links`)
+      template.push("ul")
+      template.push(`  li\n    a href="" target="_blank"\n      | `)
       break
     case 'slides':
       template.push("\nheader.caption\n  h2\n    |")
@@ -171,8 +181,9 @@ const createPostFile = function(postData) {
       break
     default:
       // post, bm
-      template.push("\n\n")
+      template.push("\n")
   }
+  template.push("\n")
   template = template.join('\n')
   logPrint(LogLevel.DD, verbose, 'template:', template)
   fs.writeFile(outputPath, template, (err) => {
@@ -208,17 +219,32 @@ commander
     incVerbose, DEFAULT_LOG_LEVEL)
   .parse(process.argv)
 
+let verbose = commander.verbose
 let title = commander.args.join(' ')
 if (title === '') {
   console.log('You should provide the title.')
   commander.help()
 }
 
-let verbose = commander.verbose
+logPrint(LogLevel.DD, verbose, 'original input:', {
+  'args': commander.args,
+  'title': title,
+  'tags': commander.tags,
+  'category': commander.category,
+  'slug': commander.slug,
+  'datetime': commander.datetime,
+  'template': commander.template,
+  'website': commander.website,
+  'path': commander.path,
+  'verbose': commander.verbose,
+  'draft': commander.draft
+})
+
 let category = fetchCategory(commander.category)
 let template = fetchTemplate(commander.template)
 let dt = fetchDt(commander.datetime)
 let slug = fetchSlug(commander.slug, title)
+let tags = (commander.tags === undefined ? '' : commander.tags.join(','))
 
 if (category === 'bm' || category === 'slides') {
   template = category
@@ -229,26 +255,19 @@ if (category === 'bm' && commander.website === undefined) {
   commander.help()
 }
 
+if (template === 'frag') {
+  category = 'coding'
+  tags = 'frag'
+  slug = `${title.replace(/\./g, '')}-fragment`
+  title = `${title} 碎片`
+}
+
 let outputPath = fetchOutputPath(commander.path, template)
 
-logPrint(LogLevel.DD, verbose, 'original input:', {
-  'args': commander.args,
-  'title': title,
-  'tags': commander.tags,
-  'category': category,
-  'slug': commander.slug,
-  'datetime': dt,
-  'template': template,
-  'website': commander.website,
-  'path': outputPath,
-  'verbose': verbose,
-  'draft': commander.draft
-})
-
 let postData = {
-  title: commander.args.join(' '),
+  title: title,
   datetime: dt,
-  tags: (commander.tags === undefined ? '' : commander.tags.join(',')),
+  tags: tags,
   category: category,
   link: slug,
   file: `${dt.replace(/\ /g, '-').replace(/:/g, '')}-${slug}`,
