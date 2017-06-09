@@ -142,7 +142,7 @@ const genTemplateMeta = (postData) => {
 }
 
 const createPostFile = function(postData) {
-  let outputPath = path.join(postData.path, `${postData['file']}.slim`)
+  let outputPath = path.join(postData.path, `${postData['file']}.slm`)
   // TODO: create post file
   let template = []
   template.push(genTemplateMeta(postData))
